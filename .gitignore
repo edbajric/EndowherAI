@@ -1,0 +1,42 @@
+# Block all model pickle files
+machine-learning/models/*.pkl
+machine-learning/data/
+
+# Node
+node_modules/
+.next/
+dist/
+build/
+frontend/node_modules/
+frontend/.next/
+frontend/dist/
+frontend/build/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.DS_Store
+**/.DS_Store
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Env & secrets
+.env
+.env.*
+*.env
+*.pkl
+
+# IDE / editors
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+
+# Logs
+logs/
+*.log
