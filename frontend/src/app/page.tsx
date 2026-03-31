@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/Button";
 export default function Home() {
   return (
     <div className="bg-bgSoft">
-      <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-18">
+      <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
         <div className="grid items-center gap-10 lg:grid-cols-2">
           <div>
             <p className="text-sm font-medium text-inkMuted">
@@ -233,7 +233,8 @@ export default function Home() {
                   alt="App Store"
                   width={140}
                   height={46}
-                  className="h-auto w-[140px]"
+                  className="h-auto"
+                  style={{ width: "auto", height: "auto" }}
                 />
               </a>
               <a href="#" className="inline-flex">
@@ -242,7 +243,8 @@ export default function Home() {
                   alt="Google Play"
                   width={156}
                   height={46}
-                  className="h-auto w-[156px]"
+                  className="h-auto"
+                  style={{ width: "auto", height: "auto" }}
                 />
               </a>
             </div>
@@ -255,6 +257,7 @@ export default function Home() {
               width={520}
               height={420}
               className="h-auto w-full"
+              priority
             />
           </Card>
         </div>

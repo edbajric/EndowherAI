@@ -21,44 +21,46 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-bg/80 backdrop-blur supports-[backdrop-filter]:bg-bg/70">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2 sm:px-6">
-        <Link href="/" className="flex items-center gap-3">
-          <Image
-            src="/Logos/EndowherAI_logo_medium.svg"
-            alt="EndowherAI"
-            width={128}
-            height={40}
-            priority
-            style={{ width: "auto", height: "auto" }}
-          />
-        </Link>
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-1.5 py-0 sm:px-2">
+        <div className="flex items-center gap-4">
+          <Link href="/" className="flex items-center gap-2">
+            <Image
+              src="/Logos/EndowherAI_logo_medium.svg"
+              alt="EndowherAI"
+              width={96}
+              height={30}
+              priority
+              style={{ width: "auto", height: "auto" }}
+            />
+          </Link>
 
-        <nav className="hidden items-center gap-4 text-xs font-medium text-ink lg:flex">
-          <Link className="hover:text-inkStrong" href="/home">
-            Home
-          </Link>
-          <Link className="hover:text-inkStrong" href="/diary">
-            Diary
-          </Link>
-          <Link className="hover:text-inkStrong" href="/weekly">
-            Weekly
-          </Link>
-          <Link className="hover:text-inkStrong" href="/insights">
-            Insights
-          </Link>
-          <Link className="hover:text-inkStrong" href="/remedies">
-            Remedies
-          </Link>
-          <Link className="hover:text-inkStrong" href="/research/stats">
-            Research
-          </Link>
-          <Link className="hover:text-inkStrong" href="/education">
-            Education
-          </Link>
-          <Link className="hover:text-inkStrong" href="/blogs">
-            Blogs
-          </Link>
-        </nav>
+          <nav className="hidden items-center gap-5 text-sm font-medium text-ink lg:flex">
+            <Link className="hover:text-inkStrong" href="/home">
+              Home
+            </Link>
+            <Link className="hover:text-inkStrong" href="/diary">
+              Diary
+            </Link>
+            <Link className="hover:text-inkStrong" href="/weekly">
+              Weekly
+            </Link>
+            <Link className="hover:text-inkStrong" href="/insights">
+              Insights
+            </Link>
+            <Link className="hover:text-inkStrong" href="/remedies">
+              Remedies
+            </Link>
+            <Link className="hover:text-inkStrong" href="/research/stats">
+              Research
+            </Link>
+            <Link className="hover:text-inkStrong" href="/education">
+              Education
+            </Link>
+            <Link className="hover:text-inkStrong" href="/blogs">
+              Blogs
+            </Link>
+          </nav>
+        </div>
 
         <div className="flex items-center gap-2">
           <button
@@ -66,13 +68,13 @@ export function Navbar() {
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-bg ring-1 ring-ink/10 hover:bg-bgMuted lg:hidden"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-bg ring-1 ring-ink/10 hover:bg-bgMuted lg:hidden"
           >
             {open ? (
               <svg
                 viewBox="0 0 24 24"
-                width="20"
-                height="20"
+                width="18"
+                height="18"
                 aria-hidden="true"
               >
                 <path
@@ -101,11 +103,14 @@ export function Navbar() {
           <Button
             variant="ghost"
             href="/login"
-            className="hidden whitespace-nowrap sm:inline-flex h-9 px-3 text-xs"
+            className="hidden whitespace-nowrap sm:inline-flex h-7 px-4 text-sm font-medium"
           >
             Log in
           </Button>
-          <Button href="/signup" className="whitespace-nowrap h-9 px-4 text-xs">
+          <Button
+            href="/signup"
+            className="whitespace-nowrap h-5 px-3 text-sm font-medium"
+          >
             Get started
           </Button>
         </div>

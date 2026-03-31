@@ -43,12 +43,20 @@ export function Button(props: ButtonProps) {
     .join(" ");
 
   if ("href" in props && typeof props.href === "string") {
-    const { href, fullWidth: _fullWidth, variant: _variant, ...rest } =
-      props as Extract<ButtonProps, { href: string }>;
+    const { href, fullWidth: fw, variant: v, ...rest } = props as Extract<
+      ButtonProps,
+      { href: string }
+    >;
+    void fw;
+    void v;
     return <Link href={href} {...rest} className={className} />;
   }
 
-  const { fullWidth: _fullWidth, variant: _variant, ...rest } =
-    props as Extract<ButtonProps, { href?: never }>;
+  const { fullWidth: fw, variant: v, ...rest } = props as Extract<
+    ButtonProps,
+    { href?: never }
+  >;
+  void fw;
+  void v;
   return <button type="button" {...rest} className={className} />;
 }
