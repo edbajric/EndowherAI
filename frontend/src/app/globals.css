@@ -1,26 +1,40 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #ffffff;
+  --bg-soft: #f7e1d7;
+  --bg-muted: #dedbd2;
+
+  --accent: #edafb8;
+  --accent-2: #d79fa7;
+  --success: #b0c4b1;
+
+  --ink: #4a5759;
+  --ink-muted: #7f7f7f;
+  --ink-strong: #000000;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-bg: var(--bg);
+  --color-bgSoft: var(--bg-soft);
+  --color-bgMuted: var(--bg-muted);
+
+  --color-accent: var(--accent);
+  --color-accent2: var(--accent-2);
+  --color-success: var(--success);
+
+  --color-ink: var(--ink);
+  --color-inkMuted: var(--ink-muted);
+  --color-inkStrong: var(--ink-strong);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji",
+    "Segoe UI Emoji";
 }
