@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase-browser";
 
 import { PageShell } from "@/components/layout/PageShell";
 import { Card } from "@/components/ui/Card";
@@ -10,7 +12,33 @@ import { ConsentToggle } from "@/components/ui/ConsentToggle";
 import { DisclaimerBlock } from "@/components/ui/DisclaimerBlock";
 
 export default function SignupPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [mode, setMode] = useState<"personal" | "research">("personal");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const supabase = createClient();
+
+  async function handleSignup(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+
+    if (error) {
+      setError(error.message);
+      setLoading(false);
+      return;
+    }
+
+    // Supabase sends a confirmation email by default
+    router.push("/login?message=Check your email to confirm your account");
+  }
 
   return (
     <PageShell
@@ -19,12 +47,15 @@ export default function SignupPage() {
     >
       <div className="grid gap-6 lg:grid-cols-2">
         <Card title="Sign up" description="Start tracking in minutes.">
-          <form className="mt-4 grid gap-4">
+          <form onSubmit={handleSignup} className="mt-4 grid gap-4">
             <label className="grid gap-2">
               <span className="text-sm font-medium text-inkStrong">Email</span>
               <input
                 className="h-11 rounded-2xl bg-bg px-4 ring-1 ring-ink/10 focus:outline-none focus:ring-2 focus:ring-accent2"
                 type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
                 placeholder="you@example.com"
                 autoComplete="email"
               />
@@ -35,7 +66,11 @@ export default function SignupPage() {
               <input
                 className="h-11 rounded-2xl bg-bg px-4 ring-1 ring-ink/10 focus:outline-none focus:ring-2 focus:ring-accent2"
                 type="password"
-                placeholder="Create a password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={8}
+                placeholder="Min 8 characters"
                 autoComplete="new-password"
               />
             </label>
@@ -45,7 +80,13 @@ export default function SignupPage() {
               <ConsentToggle value={mode} onChange={setMode} />
             </div>
 
-            <Button fullWidth>Create account</Button>
+            {error && (
+              <p className="text-sm text-red-600">{error}</p>
+            )}
+
+            <Button fullWidth disabled={loading}>
+              {loading ? "Creating account..." : "Create account"}
+            </Button>
 
             <p className="text-sm text-inkMuted">
               Already have an account?{" "}
@@ -61,7 +102,7 @@ export default function SignupPage() {
           <Card title="What we store" description="Privacy-first defaults.">
             <div className="grid gap-3 text-sm leading-7 text-ink">
               <p>
-                We only ask for what’s needed to provide tracking, insights, and
+                We only ask for what's needed to provide tracking, insights, and
                 optional anonymized research aggregation.
               </p>
               <p>
