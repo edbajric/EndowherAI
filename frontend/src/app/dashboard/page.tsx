@@ -3,6 +3,10 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase-browser";
 
+import { PageShell } from "@/components/layout/PageShell";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+
 export default function DashboardPage() {
   const supabase = createClient();
   const [stats, setStats] = useState({
@@ -10,8 +14,11 @@ export default function DashboardPage() {
     avgPain: 0,
     avgFatigue: 0,
     mostCommonMood: "—",
+    totalRemedies: 0,
+    totalWeekly: 0,
   });
   const [recentLogs, setRecentLogs] = useState<any[]>([]);
+  const [recentRemedies, setRecentRemedies] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,37 +36,57 @@ export default function DashboardPage() {
 
       if (!profile) return;
 
-      // Fetch all logs for this user
+      const pid = profile.pseudonym_id;
+
+      // Fetch symptom logs
       const { data: logs } = await supabase
         .from("symptom_logs")
         .select("*")
-        .eq("pseudonym_id", profile.pseudonym_id)
+        .eq("pseudonym_id", pid)
         .order("log_date", { ascending: false });
 
       if (logs && logs.length > 0) {
         const totalLogs = logs.length;
         const avgPain =
           Math.round(
-            (logs.reduce((sum, l) => sum + l.pain_level, 0) / totalLogs) * 10
+            (logs.reduce((sum, l) => sum + (l.pain_level || 0), 0) / totalLogs) * 10
           ) / 10;
         const avgFatigue =
           Math.round(
-            (logs.reduce((sum, l) => sum + (l.fatigue_level || 0), 0) /
-              totalLogs) *
-              10
+            (logs.reduce((sum, l) => sum + (l.fatigue_level || 0), 0) / totalLogs) * 10
           ) / 10;
 
-        // Find most common mood
         const moodCounts: Record<string, number> = {};
         logs.forEach((l) => {
           if (l.mood) moodCounts[l.mood] = (moodCounts[l.mood] || 0) + 1;
         });
         const mostCommonMood =
-          Object.entries(moodCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ||
-          "—";
+          Object.entries(moodCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "—";
 
-        setStats({ totalLogs, avgPain, avgFatigue, mostCommonMood });
+        setStats((s) => ({ ...s, totalLogs, avgPain, avgFatigue, mostCommonMood }));
         setRecentLogs(logs.slice(0, 10));
+      }
+
+      // Fetch remedy count
+      const { data: remedies } = await supabase
+        .from("remedy_logs")
+        .select("*")
+        .eq("pseudonym_id", pid)
+        .order("log_date", { ascending: false });
+
+      if (remedies) {
+        setStats((s) => ({ ...s, totalRemedies: remedies.length }));
+        setRecentRemedies(remedies.slice(0, 5));
+      }
+
+      // Fetch weekly count
+      const { count } = await supabase
+        .from("weekly_logs")
+        .select("*", { count: "exact", head: true })
+        .eq("pseudonym_id", pid);
+
+      if (count != null) {
+        setStats((s) => ({ ...s, totalWeekly: count }));
       }
 
       setLoading(false);
@@ -68,84 +95,67 @@ export default function DashboardPage() {
     loadDashboard();
   }, []);
 
-  async function handleLogout() {
-    await supabase.auth.signOut();
-    window.location.href = "/login";
-  }
-
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-50">
-        <p className="text-zinc-500">Loading dashboard...</p>
-      </div>
+      <PageShell title="Dashboard" subtitle="Loading...">
+        <div className="flex items-center justify-center py-20">
+          <p className="text-inkMuted">Loading dashboard...</p>
+        </div>
+      </PageShell>
     );
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50">
-      <header className="bg-white shadow-sm">
-        <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4">
-          <h1 className="text-xl font-bold text-zinc-900">Dashboard</h1>
-          <nav className="flex gap-4 items-center">
-            <a href="/diary" className="text-sm text-blue-600 hover:underline">
-              Diary
-            </a>
-            <button
-              onClick={handleLogout}
-              className="text-sm text-zinc-500 hover:text-zinc-700"
-            >
-              Log out
-            </button>
-          </nav>
+    <PageShell
+      title="Dashboard"
+      subtitle="Your complete tracking overview."
+    >
+      {/* Stats Grid */}
+      <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+        <div className="rounded-3xl bg-bg/80 ring-1 ring-ink/10 px-5 py-4 text-center">
+          <p className="text-2xl font-semibold text-inkStrong">{stats.totalLogs}</p>
+          <p className="mt-1 text-xs text-inkMuted">Symptom entries</p>
         </div>
-      </header>
-
-      <main className="mx-auto max-w-4xl px-4 py-8">
-        {/* Stats Cards */}
-        <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-lg bg-white p-5 shadow-md text-center">
-            <p className="text-3xl font-bold text-blue-600">{stats.totalLogs}</p>
-            <p className="mt-1 text-sm text-zinc-500">Total Logs</p>
-          </div>
-          <div className="rounded-lg bg-white p-5 shadow-md text-center">
-            <p className="text-3xl font-bold text-red-500">{stats.avgPain}</p>
-            <p className="mt-1 text-sm text-zinc-500">Avg Pain Level</p>
-          </div>
-          <div className="rounded-lg bg-white p-5 shadow-md text-center">
-            <p className="text-3xl font-bold text-amber-500">{stats.avgFatigue}</p>
-            <p className="mt-1 text-sm text-zinc-500">Avg Fatigue</p>
-          </div>
-          <div className="rounded-lg bg-white p-5 shadow-md text-center">
-            <p className="text-3xl font-bold text-green-600 capitalize">
-              {stats.mostCommonMood}
-            </p>
-            <p className="mt-1 text-sm text-zinc-500">Most Common Mood</p>
-          </div>
+        <div className="rounded-3xl bg-bg/80 ring-1 ring-ink/10 px-5 py-4 text-center">
+          <p className="text-2xl font-semibold text-inkStrong">{stats.avgPain}/10</p>
+          <p className="mt-1 text-xs text-inkMuted">Avg pain</p>
         </div>
+        <div className="rounded-3xl bg-bg/80 ring-1 ring-ink/10 px-5 py-4 text-center">
+          <p className="text-2xl font-semibold text-inkStrong">{stats.avgFatigue}/10</p>
+          <p className="mt-1 text-xs text-inkMuted">Avg fatigue</p>
+        </div>
+        <div className="rounded-3xl bg-bg/80 ring-1 ring-ink/10 px-5 py-4 text-center">
+          <p className="text-2xl font-semibold text-inkStrong capitalize">{stats.mostCommonMood}</p>
+          <p className="mt-1 text-xs text-inkMuted">Top mood</p>
+        </div>
+        <div className="rounded-3xl bg-bg/80 ring-1 ring-ink/10 px-5 py-4 text-center">
+          <p className="text-2xl font-semibold text-inkStrong">{stats.totalRemedies}</p>
+          <p className="mt-1 text-xs text-inkMuted">Remedies logged</p>
+        </div>
+        <div className="rounded-3xl bg-bg/80 ring-1 ring-ink/10 px-5 py-4 text-center">
+          <p className="text-2xl font-semibold text-inkStrong">{stats.totalWeekly}</p>
+          <p className="mt-1 text-xs text-inkMuted">Weekly check-ins</p>
+        </div>
+      </div>
 
-        {/* Recent Logs Table */}
-        <div className="rounded-lg bg-white p-6 shadow-md">
-          <h2 className="mb-4 text-lg font-semibold text-zinc-900">
-            Recent Entries
-          </h2>
-
+      <div className="grid gap-5 lg:grid-cols-2">
+        {/* Recent Symptom Entries */}
+        <Card title="Recent symptom entries" description="Your last 10 diary logs.">
           {recentLogs.length === 0 ? (
-            <p className="text-sm text-zinc-500">
-              No entries yet.{" "}
-              <a href="/diary" className="text-blue-600 hover:underline">
-                Log your first symptoms
-              </a>
-            </p>
+            <div className="mt-2">
+              <p className="text-sm text-inkMuted mb-3">No entries yet.</p>
+              <Button href="/diary" variant="secondary">Log symptoms</Button>
+            </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="mt-2 overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-zinc-200 text-left text-zinc-500">
-                    <th className="pb-2 pr-4">Date</th>
-                    <th className="pb-2 pr-4">Pain</th>
-                    <th className="pb-2 pr-4">Bleeding</th>
-                    <th className="pb-2 pr-4">Mood</th>
-                    <th className="pb-2 pr-4">Fatigue</th>
+                  <tr className="border-b border-ink/10 text-left text-xs text-inkMuted">
+                    <th className="pb-2 pr-3">Date</th>
+                    <th className="pb-2 pr-3">Pain</th>
+                    <th className="pb-2 pr-3">Fatigue</th>
+                    <th className="pb-2 pr-3">Mood</th>
+                    <th className="pb-2 pr-3">Bleeding</th>
                     <th className="pb-2">Notes</th>
                   </tr>
                 </thead>
@@ -153,26 +163,47 @@ export default function DashboardPage() {
                   {recentLogs.map((log) => (
                     <tr
                       key={log.id}
-                      className="border-b border-zinc-100 text-zinc-700"
+                      className="border-b border-ink/5 text-ink"
                     >
-                      <td className="py-2 pr-4">{log.log_date}</td>
-                      <td className="py-2 pr-4">{log.pain_level}/10</td>
-                      <td className="py-2 pr-4 capitalize">
-                        {log.bleeding_intensity}
-                      </td>
-                      <td className="py-2 pr-4 capitalize">{log.mood}</td>
-                      <td className="py-2 pr-4">{log.fatigue_level}/10</td>
-                      <td className="py-2 max-w-[200px] truncate">
-                        {log.notes || "—"}
-                      </td>
+                      <td className="py-2 pr-3 text-xs">{log.log_date}</td>
+                      <td className="py-2 pr-3 text-xs font-medium">{log.pain_level}/10</td>
+                      <td className="py-2 pr-3 text-xs">{log.fatigue_level}/10</td>
+                      <td className="py-2 pr-3 text-xs capitalize">{log.mood || "—"}</td>
+                      <td className="py-2 pr-3 text-xs capitalize">{log.bleeding_intensity || "—"}</td>
+                      <td className="py-2 text-xs max-w-[150px] truncate">{log.notes || "—"}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
           )}
-        </div>
-      </main>
-    </div>
+        </Card>
+
+        {/* Recent Remedies */}
+        <Card title="Recent remedies" description="Your last 5 remedy entries.">
+          {recentRemedies.length === 0 ? (
+            <div className="mt-2">
+              <p className="text-sm text-inkMuted mb-3">No remedies logged yet.</p>
+              <Button href="/remedies" variant="secondary">Log a remedy</Button>
+            </div>
+          ) : (
+            <div className="mt-2 space-y-3">
+              {recentRemedies.map((r) => (
+                <div key={r.id} className="rounded-2xl bg-bgMuted/50 p-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-inkStrong">{r.remedy_name}</span>
+                    <span className="text-xs text-inkMuted">{r.effectiveness}/10</span>
+                  </div>
+                  <div className="mt-1 flex gap-2 text-xs text-inkMuted">
+                    <span className="rounded-full bg-bgMuted px-2 py-0.5 capitalize">{r.remedy_category}</span>
+                    <span>{r.log_date}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+      </div>
+    </PageShell>
   );
 }
