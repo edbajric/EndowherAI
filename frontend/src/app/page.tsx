@@ -27,8 +27,8 @@ export default async function Home() {
       redirect("/onboarding");
     }
 
-    // User has consent — send them to diary
-    redirect("/diary");
+    // User has consent — send them to home
+    redirect("/home");
   }
 
   // Not logged in — show landing page
@@ -252,28 +252,6 @@ export default async function Home() {
               </Button>
             </div>
 
-            <div className="mt-8 flex items-center gap-3">
-              <a href="#" className="inline-flex">
-                <Image
-                  src="/Images/appstore.png"
-                  alt="App Store"
-                  width={140}
-                  height={46}
-                  className="h-auto"
-                  style={{ width: "auto", height: "auto" }}
-                />
-              </a>
-              <a href="#" className="inline-flex">
-                <Image
-                  src="/Images/googleplay.webp"
-                  alt="Google Play"
-                  width={156}
-                  height={46}
-                  className="h-auto"
-                  style={{ width: "auto", height: "auto" }}
-                />
-              </a>
-            </div>
           </div>
 
           <Card className="bg-bgSoft">

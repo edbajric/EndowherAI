@@ -34,18 +34,10 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // If not logged in and trying to access protected pages, redirect to login
-  if (
-    !user &&
-    !request.nextUrl.pathname.startsWith("/login") &&
-    !request.nextUrl.pathname.startsWith("/signup") &&
-    !request.nextUrl.pathname.startsWith("/auth")
-  ) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    return NextResponse.redirect(url);
-  }
-
+  // IMPORTANT: Always return supabaseResponse so refreshed cookies reach the browser.
+  // Auth protection is handled by each page individually (server components check
+  // getUser and redirect, client components check on mount).
+  // The proxy's job is ONLY to keep the session cookie alive.
   return supabaseResponse;
 }
 

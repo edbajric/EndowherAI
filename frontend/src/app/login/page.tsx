@@ -80,7 +80,7 @@ function LoginForm() {
               <p className="text-sm text-red-600">{error}</p>
             )}
 
-            <Button fullWidth disabled={loading}>
+            <Button fullWidth disabled={loading} type="submit">
               {loading ? "Logging in..." : "Log in"}
             </Button>
 

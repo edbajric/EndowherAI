@@ -84,7 +84,7 @@ export default function SignupPage() {
               <p className="text-sm text-red-600">{error}</p>
             )}
 
-            <Button fullWidth disabled={loading}>
+            <Button fullWidth disabled={loading} type="submit">
               {loading ? "Creating account..." : "Create account"}
             </Button>
 
