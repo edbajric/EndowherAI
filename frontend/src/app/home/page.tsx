@@ -6,7 +6,7 @@ export default function HomeAfterLoginPage() {
   return (
     <PageShell
       title="Home"
-      subtitle="Quick overview, today’s status, and shortcuts. (Frontend-only placeholder)"
+      subtitle="Quick overview, today’s status, and shortcuts."
     >
       <div className="grid gap-5 lg:grid-cols-3">
         <Card title="Today" description="Quick check-in">
