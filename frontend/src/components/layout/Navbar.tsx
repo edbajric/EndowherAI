@@ -2,13 +2,42 @@
 
 import Image from "next/image";
 import Link from "next/link";
-
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase-browser";
 
-import { Button } from "@/components/ui/Button";
+const publicLinks = [
+  { href: "/", label: "About" },
+  { href: "/education", label: "Features" },
+  { href: "/blogs", label: "Blog" },
+  { href: "/privacy", label: "Privacy" },
+];
+
+const authedLinks = [
+  { href: "/home", label: "Home" },
+  { href: "/diary", label: "Diary" },
+  { href: "/weekly", label: "Weekly" },
+  { href: "/insights", label: "Insights" },
+  { href: "/remedies", label: "Remedies" },
+];
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const pathname = usePathname();
+  const supabase = createClient();
+
+  useEffect(() => {
+    async function checkAuth() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setUser(user);
+      setLoading(false);
+    }
+    checkAuth();
+  }, [pathname]);
 
   useEffect(() => {
     if (!open) return;
@@ -19,103 +48,107 @@ export function Navbar() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open]);
 
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    window.location.href = "/";
+  }
+
+  const links = user ? authedLinks : publicLinks;
+
+  function isActive(href: string) {
+    if (href === "/" || href === "/home") return pathname === href;
+    return pathname.startsWith(href);
+  }
+
   return (
-    <header className="sticky top-0 z-50 w-full bg-bg/80 backdrop-blur supports-[backdrop-filter]:bg-bg/70">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-1.5 py-0 sm:px-2">
-        <div className="flex items-center gap-4">
-          <Link href="/" className="flex items-center gap-2">
-            <Image
-              src="/Logos/EndowherAI_logo_medium.svg"
-              alt="EndowherAI"
-              width={96}
-              height={30}
-              priority
-              style={{ width: "auto", height: "auto" }}
-            />
-          </Link>
+    <header className="sticky top-0 z-50 w-full bg-bg/80 backdrop-blur supports-[backdrop-filter]:bg-bg/70 border-b border-ink/5">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
+        {/* Logo */}
+        <Link href={user ? "/home" : "/"} className="flex items-center gap-3 shrink-0">
+          <Image
+            src="/Logos/EndowherAI_logo_small.png"
+            alt="EndowherAI"
+            width={40}
+            height={40}
+            priority
+            className="h-10 w-10"
+          />
+          <span className="text-lg font-semibold tracking-tight text-inkStrong hidden sm:block">
+            EndowherAI
+          </span>
+        </Link>
 
-          <nav className="hidden items-center gap-5 text-sm font-medium text-ink lg:flex">
-            <Link className="hover:text-inkStrong" href="/home">
-              Home
+        {/* Center nav — desktop */}
+        <nav className="hidden items-center gap-1 lg:flex absolute left-1/2 -translate-x-1/2">
+          {links.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={[
+                "rounded-full px-5 py-2 text-sm font-medium transition-colors",
+                isActive(link.href)
+                  ? "bg-accent/25 text-inkStrong"
+                  : "text-ink hover:text-inkStrong hover:bg-ink/5",
+              ].join(" ")}
+            >
+              {link.label}
             </Link>
-            <Link className="hover:text-inkStrong" href="/diary">
-              Diary
-            </Link>
-            <Link className="hover:text-inkStrong" href="/weekly">
-              Weekly
-            </Link>
-            <Link className="hover:text-inkStrong" href="/insights">
-              Insights
-            </Link>
-            <Link className="hover:text-inkStrong" href="/remedies">
-              Remedies
-            </Link>
-            <Link className="hover:text-inkStrong" href="/research/stats">
-              Research
-            </Link>
-            <Link className="hover:text-inkStrong" href="/education">
-              Education
-            </Link>
-            <Link className="hover:text-inkStrong" href="/blogs">
-              Blogs
-            </Link>
-          </nav>
-        </div>
+          ))}
+        </nav>
 
-        <div className="flex items-center gap-2">
+        {/* Right side */}
+        <div className="flex items-center gap-3 shrink-0">
+          {/* Mobile menu button */}
           <button
             type="button"
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-bg ring-1 ring-ink/10 hover:bg-bgMuted lg:hidden"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-bg ring-1 ring-ink/10 hover:bg-bgMuted lg:hidden"
           >
             {open ? (
-              <svg
-                viewBox="0 0 24 24"
-                width="18"
-                height="18"
-                aria-hidden="true"
-              >
-                <path
-                  d="M6 6l12 12M18 6L6 18"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               </svg>
             ) : (
-              <svg
-                viewBox="0 0 24 24"
-                width="20"
-                height="20"
-                aria-hidden="true"
-              >
-                <path
-                  d="M4 7h16M4 12h16M4 17h16"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               </svg>
             )}
           </button>
-          <Button
-            variant="ghost"
-            href="/login"
-            className="hidden whitespace-nowrap sm:inline-flex h-7 px-4 text-sm font-medium"
-          >
-            Log in
-          </Button>
-          <Button
-            href="/signup"
-            className="whitespace-nowrap h-5 px-3 text-sm font-medium"
-          >
-            Get started
-          </Button>
+
+          {/* Desktop auth buttons */}
+          {!loading && (
+            <div className="hidden items-center gap-2 lg:flex">
+              {user ? (
+                <button
+                  onClick={handleLogout}
+                  className="rounded-full bg-primary px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90"
+                >
+                  Log out
+                </button>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className="rounded-full px-5 py-2 text-sm font-medium text-ink transition-colors hover:text-inkStrong hover:bg-ink/5"
+                  >
+                    Log in
+                  </Link>
+                  <Link
+                    href="/signup"
+                    className="rounded-full bg-primary px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90"
+                  >
+                    Sign Up
+                  </Link>
+                </>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
+      {/* Mobile menu */}
       {open && (
         <div className="lg:hidden">
           <div
@@ -123,57 +156,53 @@ export function Navbar() {
             aria-hidden="true"
             onClick={() => setOpen(false)}
           />
-          <div className="fixed left-0 right-0 top-[60px] z-50 mx-auto w-full max-w-6xl px-4 sm:px-6">
-            <div className="rounded-3xl bg-bg ring-1 ring-ink/10 shadow-sm p-3">
+          <div className="fixed left-0 right-0 top-[64px] z-50 mx-auto w-full max-w-lg px-4 sm:px-6">
+            <div className="rounded-3xl bg-bg ring-1 ring-ink/10 shadow-lg p-4">
               <div className="grid gap-1 text-sm font-medium text-ink">
-                <Link className="rounded-2xl px-4 py-3 hover:bg-bgMuted" href="/home" onClick={() => setOpen(false)}>
-                  Home
-                </Link>
-                <Link className="rounded-2xl px-4 py-3 hover:bg-bgMuted" href="/diary" onClick={() => setOpen(false)}>
-                  Symptom diary
-                </Link>
-                <Link className="rounded-2xl px-4 py-3 hover:bg-bgMuted" href="/weekly" onClick={() => setOpen(false)}>
-                  Weekly check-in
-                </Link>
-                <Link className="rounded-2xl px-4 py-3 hover:bg-bgMuted" href="/insights" onClick={() => setOpen(false)}>
-                  Insights
-                </Link>
-                <Link className="rounded-2xl px-4 py-3 hover:bg-bgMuted" href="/remedies" onClick={() => setOpen(false)}>
-                  Remedies
-                </Link>
-                <Link className="rounded-2xl px-4 py-3 hover:bg-bgMuted" href="/research/stats" onClick={() => setOpen(false)}>
-                  Research statistics
-                </Link>
-
-                <div className="my-2 h-px bg-ink/10" />
-
-                <Link className="rounded-2xl px-4 py-3 hover:bg-bgMuted" href="/education" onClick={() => setOpen(false)}>
-                  Education
-                </Link>
-                <Link className="rounded-2xl px-4 py-3 hover:bg-bgMuted" href="/privacy" onClick={() => setOpen(false)}>
-                  Privacy & consent
-                </Link>
-                <Link className="rounded-2xl px-4 py-3 hover:bg-bgMuted" href="/blogs" onClick={() => setOpen(false)}>
-                  Blogs
-                </Link>
-                <Link className="rounded-2xl px-4 py-3 hover:bg-bgMuted" href="/contact" onClick={() => setOpen(false)}>
-                  Contact
-                </Link>
+                {links.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setOpen(false)}
+                    className={[
+                      "rounded-2xl px-4 py-3 transition-colors",
+                      isActive(link.href)
+                        ? "bg-accent/20 text-inkStrong"
+                        : "hover:bg-bgMuted",
+                    ].join(" ")}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
               </div>
 
-              <div className="mt-3 grid grid-cols-2 gap-2">
-                <Button
-                  variant="secondary"
-                  href="/login"
-                  fullWidth
-                  onClick={() => setOpen(false)}
+              <div className="my-3 h-px bg-ink/10" />
+
+              {user ? (
+                <button
+                  onClick={() => { setOpen(false); handleLogout(); }}
+                  className="w-full rounded-2xl px-4 py-3 text-left text-sm font-medium text-ink hover:bg-bgMuted"
                 >
-                  Log in
-                </Button>
-                <Button href="/signup" fullWidth onClick={() => setOpen(false)}>
-                  Get started
-                </Button>
-              </div>
+                  Log out
+                </button>
+              ) : (
+                <div className="grid grid-cols-2 gap-2">
+                  <Link
+                    href="/login"
+                    onClick={() => setOpen(false)}
+                    className="rounded-full bg-bg ring-1 ring-ink/10 px-4 py-2.5 text-center text-sm font-medium text-inkStrong hover:bg-bgMuted"
+                  >
+                    Log in
+                  </Link>
+                  <Link
+                    href="/signup"
+                    onClick={() => setOpen(false)}
+                    className="rounded-full bg-primary px-4 py-2.5 text-center text-sm font-medium text-white hover:bg-primary/90"
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>
