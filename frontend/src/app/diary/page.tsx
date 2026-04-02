@@ -20,8 +20,10 @@ export default function DiaryPage() {
   // Form fields
   const [pelvicPain, setPelvicPain] = useState(5);
   const [fatigue, setFatigue] = useState(4);
+  const [cycleDay, setCycleDay] = useState<number | "">("");
+  const [bleedingIntensity, setBleedingIntensity] = useState("none");
   const [stress, setStress] = useState<number | null>(null);
-  const [mood, setMood] = useState<number | null>(null);
+  const [mood, setMood] = useState("neutral");
   const [sexuallyActive, setSexuallyActive] = useState(false);
   const [painDuringSex, setPainDuringSex] = useState(0);
   const [notes, setNotes] = useState("");
@@ -75,7 +77,9 @@ export default function DiaryPage() {
         pseudonym_id: pseudonymId,
         log_date: new Date().toISOString().split("T")[0],
         pain_level: pelvicPain,
-        mood: mood !== null ? String(mood) : null,
+        cycle_day: cycleDay === "" ? null : cycleDay,
+        bleeding_intensity: bleedingIntensity,
+        mood,
         fatigue_level: fatigue,
         notes: notes || null,
       });
@@ -91,8 +95,10 @@ export default function DiaryPage() {
     setNotes("");
     setPelvicPain(5);
     setFatigue(4);
+    setCycleDay("");
+    setBleedingIntensity("none");
     setStress(null);
-    setMood(null);
+    setMood("neutral");
     loadLogs(pseudonymId);
   }
 
@@ -126,8 +132,11 @@ export default function DiaryPage() {
                       Pain: {log.pain_level}/10
                     </span>
                   </div>
-                  <div className="mt-1 flex gap-2 text-xs text-inkMuted">
-                    {log.mood && <span>Mood: {log.mood}</span>}
+                  <div className="mt-1 flex flex-wrap gap-2 text-xs text-inkMuted">
+                    {log.bleeding_intensity && log.bleeding_intensity !== "none" && (
+                      <span className="capitalize">Bleeding: {log.bleeding_intensity}</span>
+                    )}
+                    {log.mood && <span className="capitalize">Mood: {log.mood}</span>}
                     {log.fatigue_level != null && (
                       <>
                         <span>·</span>
@@ -162,6 +171,52 @@ export default function DiaryPage() {
               onChange={setFatigue}
             />
 
+            <div className="rounded-3xl bg-bg ring-1 ring-ink/10 px-5 py-4">
+              <label className="text-sm font-medium text-inkStrong">
+                Cycle Day <span className="ml-2 text-xs text-inkMuted">Optional</span>
+              </label>
+              <input
+                type="number"
+                min="1"
+                max="60"
+                value={cycleDay}
+                onChange={(e) =>
+                  setCycleDay(e.target.value === "" ? "" : Number(e.target.value))
+                }
+                className="mt-3 h-11 w-full rounded-2xl bg-bg px-4 ring-1 ring-ink/10 focus:outline-none focus:ring-2 focus:ring-accent2"
+                placeholder="e.g., 14"
+              />
+            </div>
+
+            <div className="rounded-3xl bg-bg ring-1 ring-ink/10 px-5 py-4">
+              <label className="text-sm font-medium text-inkStrong">Bleeding Intensity</label>
+              <select
+                value={bleedingIntensity}
+                onChange={(e) => setBleedingIntensity(e.target.value)}
+                className="mt-3 h-11 w-full rounded-2xl bg-bg px-4 ring-1 ring-ink/10 focus:outline-none focus:ring-2 focus:ring-accent2"
+              >
+                <option value="none">None</option>
+                <option value="light">Light</option>
+                <option value="medium">Medium</option>
+                <option value="heavy">Heavy</option>
+              </select>
+            </div>
+
+            <div className="rounded-3xl bg-bg ring-1 ring-ink/10 px-5 py-4">
+              <label className="text-sm font-medium text-inkStrong">Mood</label>
+              <select
+                value={mood}
+                onChange={(e) => setMood(e.target.value)}
+                className="mt-3 h-11 w-full rounded-2xl bg-bg px-4 ring-1 ring-ink/10 focus:outline-none focus:ring-2 focus:ring-accent2"
+              >
+                <option value="happy">Happy</option>
+                <option value="neutral">Neutral</option>
+                <option value="sad">Sad</option>
+                <option value="anxious">Anxious</option>
+                <option value="irritable">Irritable</option>
+              </select>
+            </div>
+
             <Likert
               label="Stress"
               description="How stressed did you feel today?"
@@ -169,14 +224,6 @@ export default function DiaryPage() {
               onChange={setStress}
               optional
             />
-            <Likert
-              label="Mood"
-              description="Overall mood intensity"
-              value={mood}
-              onChange={setMood}
-              optional
-            />
-
             <SensitiveSection title="Sexual health (optional)">
               <div className="rounded-3xl bg-bg ring-1 ring-ink/10 px-5 py-4">
                 <p className="text-sm font-medium text-inkStrong">Sexually active</p>
