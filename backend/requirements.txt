@@ -1,30 +1,23 @@
 # --- Web & API Core ---
 fastapi>=0.110.0
 uvicorn[standard]>=0.29.0
-pydantic[email]>=2.0.0     
-pydantic-settings>=2.0.0 
-sqlalchemy>=2.0.0
-psycopg[binary] 
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
 httpx>=0.27.0
-httpx
-supabase
-openai
+python-dotenv
 
 # --- Security & Auth ---
-python-jose[cryptography] 
-argon2-cffi>=23.1.0
-python-dotenv 
+python-jose[cryptography]
 
-# --- Machine Learning & Analytics ---
-scikit-learn>=1.5.0
-pandas>=2.2.0
-numpy>=1.26.0
-xgboost>=2.0.0 
-catboost>=1.2.0 
-joblib
-
-# --- Explainability & Feature Selection (XAI) ---
-shap>=0.45.0
-lime>=0.2.0 
-BorutaShap==1.0.17
-imbalanced-learn>=0.12.0 
+# --- ML & Analytics (Edina's — uncomment when needed) ---
+# scikit-learn>=1.5.0
+# pandas>=2.2.0
+# numpy>=1.26.0
+# xgboost>=2.0.0
+# catboost>=1.2.0
+# joblib
+# shap>=0.45.0
+# lime>=0.2.0
+# BorutaShap==1.0.17
+# imbalanced-learn>=0.12.0
+# openai
