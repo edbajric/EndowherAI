@@ -1,11 +1,37 @@
-import Image from "next/image";
+// import Image from "next/image";
 
 import { Card } from "@/components/ui/Card";
 import { DisclaimerBlock } from "@/components/ui/DisclaimerBlock";
 import { PrivacyStatement } from "@/components/ui/PrivacyStatement";
 import { Button } from "@/components/ui/Button";
+import { createClient } from "@/lib/supabase-server";
+import { redirect } from "next/navigation";
+import Image from "next/image";
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    // Check if user has given consent
+    const { data: profile } = await supabase
+      .from("user_profiles")
+      .select("consent_flag")
+      .eq("auth_id", user.id)
+      .single();
+
+    if (!profile?.consent_flag) {
+      redirect("/onboarding");
+    }
+
+    // User has consent — send them to home
+    redirect("/home");
+  }
+
+  // Not logged in — show landing page
   return (
     <div className="bg-bgSoft">
       <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
@@ -226,28 +252,6 @@ export default function Home() {
               </Button>
             </div>
 
-            <div className="mt-8 flex items-center gap-3">
-              <a href="#" className="inline-flex">
-                <Image
-                  src="/Images/appstore.png"
-                  alt="App Store"
-                  width={140}
-                  height={46}
-                  className="h-auto"
-                  style={{ width: "auto", height: "auto" }}
-                />
-              </a>
-              <a href="#" className="inline-flex">
-                <Image
-                  src="/Images/googleplay.webp"
-                  alt="Google Play"
-                  width={156}
-                  height={46}
-                  className="h-auto"
-                  style={{ width: "auto", height: "auto" }}
-                />
-              </a>
-            </div>
           </div>
 
           <Card className="bg-bgSoft">

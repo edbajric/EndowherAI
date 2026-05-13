@@ -17,11 +17,11 @@ type ButtonProps = BaseProps &
 function getVariantClasses(variant: ButtonVariant) {
   switch (variant) {
     case "primary":
-      return "bg-accent text-inkStrong hover:bg-accent2";
+      return "bg-primary text-white hover:bg-primary/90";
     case "secondary":
-      return "bg-bg text-inkStrong ring-1 ring-ink/10 hover:bg-bgMuted";
+      return "bg-bg text-inkStrong ring-1 ring-ink/15 hover:bg-bgSoft";
     case "ghost":
-      return "bg-transparent text-inkStrong hover:bg-bgMuted";
+      return "bg-transparent text-inkStrong hover:bg-bgSoft";
   }
 }
 
@@ -52,11 +52,11 @@ export function Button(props: ButtonProps) {
     return <Link href={href} {...rest} className={className} />;
   }
 
-  const { fullWidth: fw, variant: v, ...rest } = props as Extract<
+  const { fullWidth: fw, variant: v, type, ...rest } = props as Extract<
     ButtonProps,
     { href?: never }
-  >;
+  > & { type?: "button" | "submit" | "reset" };
   void fw;
   void v;
-  return <button type="button" {...rest} className={className} />;
+  return <button type={type ?? "button"} {...rest} className={className} />;
 }
