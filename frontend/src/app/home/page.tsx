@@ -6,6 +6,9 @@ import { createClient } from "@/lib/supabase-browser";
 import { PageShell } from "@/components/layout/PageShell";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { AIInsightsPanel, type AssessmentResult } from "@/components/insights/AIInsightsPanel";
+import { FloatingChat } from "@/components/chat/FloatingChat";
+import type { LIMEFactor } from "@/components/insights/AIInsightsPanel";
 
 export default function HomePage() {
   const supabase = createClient();
@@ -15,6 +18,15 @@ export default function HomePage() {
   const [lastRemedy, setLastRemedy] = useState<any>(null);
   const [recentLogs, setRecentLogs] = useState<any[]>([]);
   const [recentRemedies, setRecentRemedies] = useState<any[]>([]);
+  // Shared AI state: AIInsightsPanel writes, FloatingChat reads
+  const [lastAssessment, setLastAssessment] = useState<AssessmentResult | null>(null);
+  const [chatLime, setChatLime] = useState<LIMEFactor[] | undefined>(undefined);
+
+  function handleAssessmentResult(result: AssessmentResult) {
+    setLastAssessment(result);
+    setChatLime(result.explanation);
+  }
+
   const [stats, setStats] = useState({
     totalLogs: 0,
     avgPain: 0,
@@ -224,6 +236,11 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* ===== AI INSIGHTS ===== */}
+      <div className="mb-8">
+        <AIInsightsPanel onResult={handleAssessmentResult} />
+      </div>
+
       {/* ===== HISTORY TABLES ===== */}
       <div className="grid gap-5 lg:grid-cols-2">
         {/* Recent Symptom Entries */}
@@ -295,6 +312,9 @@ export default function HomePage() {
         <Button fullWidth variant="secondary" href="/weekly">Weekly check-in</Button>
         <Button fullWidth variant="secondary" href="/remedies">Log a remedy</Button>
       </div>
+
+      {/* ===== FLOATING CHAT (renders outside PageShell flow) ===== */}
+      <FloatingChat limeContext={chatLime} />
     </PageShell>
   );
 }

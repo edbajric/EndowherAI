@@ -52,12 +52,15 @@ export default async function Home() {
 
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
               <Button href="/signup" className="justify-center">
-                Track symptoms
+                Get Started — Free
               </Button>
-              <Button variant="secondary" href="/research/signup" className="justify-center">
-                Join research
+              <Button variant="secondary" href="/login" className="justify-center">
+                Log In
               </Button>
             </div>
+            <p className="mt-3 text-xs text-inkMuted">
+              No real name required · Pseudonymous by default · Delete any time
+            </p>
 
             <div className="mt-8 grid gap-3">
               <PrivacyStatement />
