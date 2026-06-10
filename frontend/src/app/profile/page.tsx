@@ -13,15 +13,26 @@ export default function ProfilePage() {
   return (
     <PageShell
       title="Profile"
-      subtitle="Baseline health data, preferences, consent settings. (Frontend-only placeholder)"
+      subtitle="Baseline health data, preferences, consent settings."
     >
       <div className="grid gap-6 lg:grid-cols-2">
         <Card title="Consent settings" description="Choose what you want to share.">
           <ConsentToggle value={mode} onChange={setMode} />
         </Card>
 
-        <Card title="Privacy controls" description="Frontend-only buttons">
-          <div className="grid gap-3">
+        <Card title="Remedy statistics" description="Track which remedies are helping you most.">
+          <div className="mt-3 space-y-3">
+            <p className="text-sm text-inkMuted">
+              See your full remedy history, effectiveness ratings, how long you've been using each remedy, and how you compare with the community.
+            </p>
+            <Button fullWidth href="/insights/remedies">
+              View remedy stats →
+            </Button>
+          </div>
+        </Card>
+
+        <Card title="Privacy controls" description="Manage your account data.">
+          <div className="grid gap-3 mt-3">
             <Button fullWidth variant="secondary">
               Regenerate random user ID
             </Button>
