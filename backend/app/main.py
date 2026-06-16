@@ -12,6 +12,7 @@ from app.api.v1.active_remedies import router as active_remedies_router
 from app.api.v1.remedy_insights import router as remedy_insights_router
 from app.api.v1.predict import router as predict_router
 from app.api.v1.chat import router as chat_router
+from app.api.v1.community_insights import router as community_insights_router
 from app.ml.engine import load_model
 
 log = logging.getLogger(__name__)
@@ -57,6 +58,7 @@ app.include_router(active_remedies_router)
 app.include_router(remedy_insights_router)
 app.include_router(predict_router)
 app.include_router(chat_router)
+app.include_router(community_insights_router)
 
 
 @app.get("/", tags=["Health"])

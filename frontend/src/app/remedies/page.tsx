@@ -5,6 +5,16 @@ import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@/lib/supabase-browser';
 import { PageShell } from '@/components/layout/PageShell';
 import { useActiveRemedies } from '@/lib/active-remedies';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from 'recharts';
 
 // ─── Catalogue ────────────────────────────────────────────────────────────────
 
@@ -160,6 +170,93 @@ interface RemedyStat {
   last: string;
 }
 
+interface RawLog {
+  remedy_name: string;
+  remedy_category: string;
+  effectiveness: number;
+  log_date: string;
+}
+
+// ─── Chart helpers ────────────────────────────────────────────────────────────
+
+const LINE_COLORS = [
+  '#7c3aed', '#0891b2', '#059669', '#d97706',
+  '#dc2626', '#c026d3', '#0284c7', '#65a30d',
+];
+
+function weekStart(dateStr: string): string {
+  const d = new Date(dateStr + 'T00:00:00');
+  const dow = d.getDay();
+  d.setDate(d.getDate() - (dow === 0 ? 6 : dow - 1));
+  return d.toISOString().slice(0, 10);
+}
+
+function toWeeklyBins(logs: RawLog[]): Array<Record<string, string | number>> {
+  const grouped = new Map<string, Map<string, { sum: number; count: number }>>();
+  for (const log of logs) {
+    const name = log.remedy_name;
+    const week = weekStart(log.log_date);
+    if (!grouped.has(name)) grouped.set(name, new Map());
+    const wm = grouped.get(name)!;
+    if (!wm.has(week)) wm.set(week, { sum: 0, count: 0 });
+    const e = wm.get(week)!;
+    e.sum += log.effectiveness;
+    e.count++;
+  }
+  const allWeeks = new Set<string>();
+  for (const wm of grouped.values()) for (const w of wm.keys()) allWeeks.add(w);
+  const sortedWeeks = [...allWeeks].sort();
+  return sortedWeeks.map(week => {
+    const row: Record<string, string | number> = { week };
+    for (const [name, wm] of grouped) {
+      const e = wm.get(week);
+      if (e) row[name] = Math.round((e.sum / e.count) * 10) / 10;
+    }
+    return row;
+  });
+}
+
+function fmtWeek(w: string) {
+  return new Date(w + 'T00:00:00').toLocaleDateString('en', { month: 'short', day: 'numeric' });
+}
+
+function TrendChart({ logs, remedyNames }: { logs: RawLog[]; remedyNames: string[] }) {
+  const data = toWeeklyBins(logs);
+  const activeNames = remedyNames.filter(n => logs.some(l => l.remedy_name === n));
+  if (data.length < 2 || activeNames.length === 0) return null;
+
+  return (
+    <div className="rounded-3xl bg-bg ring-1 ring-ink/10 px-5 py-4 shadow-sm space-y-3">
+      <p className="text-sm font-semibold text-inkStrong">Effectiveness over time</p>
+      <ResponsiveContainer width="100%" height={200}>
+        <LineChart data={data} margin={{ top: 4, right: 4, bottom: 0, left: -22 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+          <XAxis dataKey="week" tickFormatter={fmtWeek} tick={{ fontSize: 10 }} minTickGap={40} />
+          <YAxis domain={[0, 10]} ticks={[0, 5, 10]} tick={{ fontSize: 10 }} />
+          <Tooltip
+            formatter={(v: any, name: any) => [`${v}/10`, name]}
+            labelFormatter={(w: any) => fmtWeek(w)}
+            contentStyle={{ fontSize: 11, borderRadius: 10 }}
+          />
+          <Legend wrapperStyle={{ fontSize: 10, paddingTop: 6 }} />
+          {activeNames.map((name, i) => (
+            <Line
+              key={name}
+              type="monotone"
+              dataKey={name}
+              stroke={LINE_COLORS[i % LINE_COLORS.length]}
+              strokeWidth={2}
+              dot={{ r: 3 }}
+              activeDot={{ r: 5 }}
+              connectNulls
+            />
+          ))}
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function daysSince(iso: string) {
@@ -179,6 +276,7 @@ export default function RemediesPage() {
   const supabase = createClient();
   const [pseudonymId, setPseudonymId] = useState<string | null>(null);
   const [logStats, setLogStats] = useState<Map<string, RemedyStat>>(new Map());
+  const [rawLogs, setRawLogs] = useState<RawLog[]>([]);
   const [browseCat, setBrowseCat] = useState<string | null>(null);
   const [addingKey, setAddingKey] = useState<string | null>(null);
   const [customName, setCustomName] = useState('');
@@ -209,6 +307,7 @@ export default function RemediesPage() {
       .not('effectiveness', 'is', null);
 
     if (!data) return;
+    setRawLogs(data as RawLog[]);
 
     const acc = new Map<string, { count: number; sum: number; last: string }>();
     for (const log of data) {
@@ -277,6 +376,13 @@ export default function RemediesPage() {
             </Link>
           )}
         </div>
+
+        {rawLogs.length >= 3 && (
+          <TrendChart
+            logs={rawLogs}
+            remedyNames={activeRemedies.map(r => r.remedy_name)}
+          />
+        )}
 
         {arLoading ? (
           <p className="text-sm text-inkMuted">Loading…</p>

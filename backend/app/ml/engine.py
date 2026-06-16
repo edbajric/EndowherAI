@@ -58,18 +58,21 @@ _API_FIELD_KEYWORDS: dict[str, str] = {
     "mood_anxiety_depression":  "mood swings, anxiety or depression",
     "fatigue":                  "very tired or exhausted",
     "cycle_regularity":         "menstrual cycle pattern",
-    # Demographics / biometrics
-    "age":  "Age",
-    "bmi":  "BMI",
+    # Age and BMI are excluded: age creates a large spurious jump at age 25
+    # (model split point), pushing even zero-symptom users to 76%+ risk.
+    # BMI is excluded because it wasn't in the original user survey context.
     # Treatment behaviours (0-10 effectiveness ratings)
     "anti_inflammatory_diet":  "Anti",
     "pelvic_floor_physio":     "Pelvic floor",
 }
 
-# Risk thresholds
+# Risk thresholds — calibrated against the model's actual output range.
+# Without age/bmi in the vector, blank inputs ≈ 44-45% (model prior on
+# balanced data). Mild symptoms stay below 48%; moderate symptoms 48-68%;
+# severe multi-symptom profiles exceed 68%.
 _RISK_THRESHOLDS = [
-    (0.70, "High"),
-    (0.40, "Moderate"),
+    (0.68, "High"),
+    (0.48, "Moderate"),
     (0.00, "Low"),
 ]
 
@@ -132,8 +135,19 @@ class _MLEngine:
         return root / "machine-learning" / "outputs" / "endowher_stacking_model.joblib"
 
     def _resolve_col(self, keyword: str) -> Optional[str]:
-        """Find the first column name that contains `keyword` (case-insensitive)."""
+        """
+        Find the column name that matches `keyword` (case-insensitive).
+        Exact match wins over substring match so that short keywords like
+        "Age" or "BMI" don't accidentally bind to longer column names that
+        merely contain the word (e.g. "At what age did you have your first
+        period?" should never be resolved by the keyword "Age").
+        """
         kw_lower = keyword.lower()
+        # 1. Exact match (stripped to be safe)
+        for col in self._feature_cols:
+            if col.strip().lower() == kw_lower:
+                return col
+        # 2. Substring match as fallback
         for col in self._feature_cols:
             if kw_lower in col.lower():
                 return col
@@ -166,18 +180,47 @@ class _MLEngine:
         """
         Build a full N-feature raw-space vector.
 
-        1. Start from zeros — "no symptoms / never / not applicable" baseline.
-           Using training-distribution defaults is wrong here: the training cohort
-           consists of symptomatic/diagnosed patients, so their means (period pain
-           ~6.4, diagnosis delay ~3.5 years, etc.) would dominate any user input
-           and inflate every prediction toward ~97% regardless of what the user
-           actually reports.
-        2. Override with user-provided values via the resolved API field map.
-        3. Recompute derived composite features (pain_composite_*, symptom_burden).
+        Strategy
+        --------
+        1. Start with **zeros** — the correct "no symptom / not tried / not
+           applicable" baseline for the vast majority of the 93 features.
+           Using training-distribution medians for all unmapped features would be
+           wrong: the ~45 remedy-effectiveness columns have non-zero medians
+           (training cohort actively tried remedies), so seeding them at median
+           falsely tells the model "this person is treating a condition" → 97 %.
+
+        2. For the small set of features where raw = 0 is **physically impossible
+           or out-of-distribution** (diagnosis-delay columns, age at first period),
+           override with the training median.  These features scaled from raw = 0
+           produce values far outside the scaler's fitted range, causing LIME to
+           flag them as the top contributors even though the user never provided
+           them.  The training median is the appropriate "neutral / not applicable"
+           value for these columns.
+
+        3. Override all API-mapped features with user-provided values (or keep
+           them at 0 if the user left them at the default of 0).
+
+        4. Recompute derived composite features (pain_composite_*, symptom_burden).
         """
+        # Step 1: baseline = zeros
         vec = np.zeros(len(self._feature_cols), dtype=float)
 
-        # Override with API inputs
+        # Step 2: plug training-median only for age-at-menarche, where 0 is
+        # physically impossible.  Diagnosis-delay columns stay at 0 ("not yet
+        # diagnosed / not applicable") — their scaler min is 0 so this is
+        # in-distribution.  Setting them to their training median (3.4 years)
+        # would imply the user has been managing symptoms for 3+ years and
+        # would suppress ALL predictions, even for severe symptom profiles.
+        _NEEDS_MEDIAN_KEYWORDS = [
+            "at what age did you have your first period",  # menarche: 0 impossible
+        ]
+        if self._defaults:
+            for col in self._feature_cols:
+                col_lower = col.lower()
+                if any(kw in col_lower for kw in _NEEDS_MEDIAN_KEYWORDS):
+                    vec[self._col_idx[col]] = float(self._defaults.get(col, 0.0))
+
+        # Step 3: override with user-provided values
         for api_key, raw_val in api_inputs.items():
             col = self._api_field_map.get(api_key)
             if col and col in self._col_idx:
@@ -268,15 +311,29 @@ class _MLEngine:
             top_labels=1,
         )
 
-        raw_list = exp.as_list(label=1)
+        # LIME only stores the top_labels it actually computed. For low-risk
+        # inputs the predicted class may be 0, so label=1 won't exist.
+        # Fall back to label=0 and flip contribution signs so they still
+        # describe the "increases / decreases risk of having a condition"
+        # direction from the user's perspective.
+        available = list(exp.local_exp.keys())
+        if 1 in available:
+            raw_list = exp.as_list(label=1)
+            sign = 1
+        elif available:
+            raw_list = exp.as_list(label=available[0])
+            sign = -1  # label-0 contributions are inverted relative to class-1
+        else:
+            return []
+
         top = sorted(raw_list, key=lambda x: abs(x[1]), reverse=True)[:top_n]
 
         return [
             {
                 "symptom":      rule.split(" <= ")[0].split(" > ")[0].strip(),
                 "rule":         rule,
-                "contribution": round(float(contrib), 4),
-                "direction":    "increases_risk" if contrib > 0 else "decreases_risk",
+                "contribution": round(float(contrib) * sign, 4),
+                "direction":    "increases_risk" if contrib * sign > 0 else "decreases_risk",
             }
             for rule, contrib in top
         ]

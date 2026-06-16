@@ -1,0 +1,770 @@
+{
+  "generated_at": "2026-06-11",
+  "sample_size": 175,
+  "condition_breakdown": {
+    "endo_only": 49,
+    "pcos_only": 28,
+    "both": 12,
+    "neither": 86
+  },
+  "symptom_prevalence": {
+    "endo": [
+      {
+        "label": "QoL impact",
+        "avg_score": 7.3,
+        "pct_moderate": 83.7
+      },
+      {
+        "label": "Period pain",
+        "avg_score": 7.2,
+        "pct_moderate": 83.7
+      },
+      {
+        "label": "Sharp pelvic pain",
+        "avg_score": 6.3,
+        "pct_moderate": 75.5
+      },
+      {
+        "label": "Overall chronic pain",
+        "avg_score": 6.1,
+        "pct_moderate": 69.4
+      },
+      {
+        "label": "Lower back pain",
+        "avg_score": 5.8,
+        "pct_moderate": 59.2
+      },
+      {
+        "label": "Chronic pelvic pain",
+        "avg_score": 5.0,
+        "pct_moderate": 61.2
+      },
+      {
+        "label": "Abdominal pain",
+        "avg_score": 5.0,
+        "pct_moderate": 63.3
+      },
+      {
+        "label": "Painful ovulation",
+        "avg_score": 4.9,
+        "pct_moderate": 57.1
+      },
+      {
+        "label": "Hip / leg pain",
+        "avg_score": 4.6,
+        "pct_moderate": 53.1
+      }
+    ],
+    "pcos": [
+      {
+        "label": "Period pain",
+        "avg_score": 5.6,
+        "pct_moderate": 57.1
+      },
+      {
+        "label": "QoL impact",
+        "avg_score": 5.5,
+        "pct_moderate": 64.3
+      },
+      {
+        "label": "Lower back pain",
+        "avg_score": 5.0,
+        "pct_moderate": 50.0
+      },
+      {
+        "label": "Sharp pelvic pain",
+        "avg_score": 4.7,
+        "pct_moderate": 53.6
+      },
+      {
+        "label": "Overall chronic pain",
+        "avg_score": 4.4,
+        "pct_moderate": 46.4
+      },
+      {
+        "label": "Hip / leg pain",
+        "avg_score": 3.3,
+        "pct_moderate": 32.1
+      },
+      {
+        "label": "Abdominal pain",
+        "avg_score": 3.0,
+        "pct_moderate": 32.1
+      },
+      {
+        "label": "Painful ovulation",
+        "avg_score": 3.0,
+        "pct_moderate": 42.9
+      },
+      {
+        "label": "Chronic pelvic pain",
+        "avg_score": 2.4,
+        "pct_moderate": 32.1
+      }
+    ],
+    "both": [
+      {
+        "label": "Period pain",
+        "avg_score": 8.1,
+        "pct_moderate": 91.7
+      },
+      {
+        "label": "Overall chronic pain",
+        "avg_score": 7.8,
+        "pct_moderate": 91.7
+      },
+      {
+        "label": "QoL impact",
+        "avg_score": 7.4,
+        "pct_moderate": 91.7
+      },
+      {
+        "label": "Lower back pain",
+        "avg_score": 7.2,
+        "pct_moderate": 91.7
+      },
+      {
+        "label": "Hip / leg pain",
+        "avg_score": 7.2,
+        "pct_moderate": 83.3
+      },
+      {
+        "label": "Sharp pelvic pain",
+        "avg_score": 7.2,
+        "pct_moderate": 83.3
+      },
+      {
+        "label": "Abdominal pain",
+        "avg_score": 6.4,
+        "pct_moderate": 91.7
+      },
+      {
+        "label": "Chronic pelvic pain",
+        "avg_score": 6.2,
+        "pct_moderate": 83.3
+      },
+      {
+        "label": "Painful ovulation",
+        "avg_score": 6.1,
+        "pct_moderate": 75.0
+      }
+    ],
+    "overall": [
+      {
+        "label": "Period pain",
+        "avg_score": 6.4,
+        "pct_moderate": 74.3
+      },
+      {
+        "label": "QoL impact",
+        "avg_score": 5.9,
+        "pct_moderate": 66.3
+      },
+      {
+        "label": "Lower back pain",
+        "avg_score": 5.3,
+        "pct_moderate": 58.9
+      },
+      {
+        "label": "Overall chronic pain",
+        "avg_score": 5.1,
+        "pct_moderate": 55.4
+      },
+      {
+        "label": "Sharp pelvic pain",
+        "avg_score": 5.0,
+        "pct_moderate": 56.0
+      },
+      {
+        "label": "Hip / leg pain",
+        "avg_score": 4.0,
+        "pct_moderate": 45.1
+      },
+      {
+        "label": "Abdominal pain",
+        "avg_score": 3.7,
+        "pct_moderate": 42.9
+      },
+      {
+        "label": "Painful ovulation",
+        "avg_score": 3.5,
+        "pct_moderate": 40.0
+      },
+      {
+        "label": "Chronic pelvic pain",
+        "avg_score": 3.3,
+        "pct_moderate": 38.9
+      }
+    ]
+  },
+  "remedy_effectiveness": [
+    {
+      "label": "Heat therapy",
+      "category": "heat",
+      "usage_count": 130,
+      "usage_pct": 74.3,
+      "avg_effectiveness": 6.2
+    },
+    {
+      "label": "Magnesium",
+      "category": "supplement",
+      "usage_count": 99,
+      "usage_pct": 56.6,
+      "avg_effectiveness": 5.3
+    },
+    {
+      "label": "Reduced processed food",
+      "category": "diet",
+      "usage_count": 94,
+      "usage_pct": 53.7,
+      "avg_effectiveness": 5.3
+    },
+    {
+      "label": "Reduced sugar",
+      "category": "diet",
+      "usage_count": 95,
+      "usage_pct": 54.3,
+      "avg_effectiveness": 5.2
+    },
+    {
+      "label": "Vitamin D",
+      "category": "supplement",
+      "usage_count": 91,
+      "usage_pct": 52.0,
+      "avg_effectiveness": 4.7
+    },
+    {
+      "label": "Omega-3",
+      "category": "supplement",
+      "usage_count": 66,
+      "usage_pct": 37.7,
+      "avg_effectiveness": 4.7
+    },
+    {
+      "label": "Walking",
+      "category": "exercise",
+      "usage_count": 117,
+      "usage_pct": 66.9,
+      "avg_effectiveness": 4.7
+    },
+    {
+      "label": "Zinc",
+      "category": "supplement",
+      "usage_count": 42,
+      "usage_pct": 24.0,
+      "avg_effectiveness": 4.6
+    },
+    {
+      "label": "Gentle stretching",
+      "category": "exercise",
+      "usage_count": 102,
+      "usage_pct": 58.3,
+      "avg_effectiveness": 4.5
+    },
+    {
+      "label": "Chamomile tea",
+      "category": "tea",
+      "usage_count": 105,
+      "usage_pct": 60.0,
+      "avg_effectiveness": 4.4
+    },
+    {
+      "label": "Peppermint tea",
+      "category": "tea",
+      "usage_count": 87,
+      "usage_pct": 49.7,
+      "avg_effectiveness": 4.4
+    },
+    {
+      "label": "Yoga / Pilates",
+      "category": "exercise",
+      "usage_count": 45,
+      "usage_pct": 25.7,
+      "avg_effectiveness": 4.4
+    },
+    {
+      "label": "Anti-inflammatory diet",
+      "category": "diet",
+      "usage_count": 46,
+      "usage_pct": 26.3,
+      "avg_effectiveness": 4.4
+    },
+    {
+      "label": "Fennel tea",
+      "category": "tea",
+      "usage_count": 38,
+      "usage_pct": 21.7,
+      "avg_effectiveness": 4.1
+    },
+    {
+      "label": "Myo-inositol",
+      "category": "supplement",
+      "usage_count": 20,
+      "usage_pct": 11.4,
+      "avg_effectiveness": 4.0
+    },
+    {
+      "label": "Cinnamon tea",
+      "category": "tea",
+      "usage_count": 37,
+      "usage_pct": 21.1,
+      "avg_effectiveness": 3.9
+    },
+    {
+      "label": "Spearmint tea",
+      "category": "tea",
+      "usage_count": 44,
+      "usage_pct": 25.1,
+      "avg_effectiveness": 3.8
+    },
+    {
+      "label": "Turmeric tea",
+      "category": "tea",
+      "usage_count": 35,
+      "usage_pct": 20.0,
+      "avg_effectiveness": 3.8
+    },
+    {
+      "label": "Ginger tea",
+      "category": "tea",
+      "usage_count": 52,
+      "usage_pct": 29.7,
+      "avg_effectiveness": 3.7
+    },
+    {
+      "label": "Raspberry leaf tea",
+      "category": "tea",
+      "usage_count": 29,
+      "usage_pct": 16.6,
+      "avg_effectiveness": 3.5
+    }
+  ],
+  "remedy_by_condition": {
+    "endo": [
+      {
+        "label": "Heat therapy",
+        "category": "heat",
+        "usage_count": 42,
+        "usage_pct": 85.7,
+        "avg_effectiveness": 5.9
+      },
+      {
+        "label": "Reduced processed food",
+        "category": "diet",
+        "usage_count": 38,
+        "usage_pct": 77.6,
+        "avg_effectiveness": 5.4
+      },
+      {
+        "label": "Reduced sugar",
+        "category": "diet",
+        "usage_count": 38,
+        "usage_pct": 77.6,
+        "avg_effectiveness": 5.3
+      },
+      {
+        "label": "Anti-inflammatory diet",
+        "category": "diet",
+        "usage_count": 24,
+        "usage_pct": 49.0,
+        "avg_effectiveness": 5.2
+      },
+      {
+        "label": "Vitamin D",
+        "category": "supplement",
+        "usage_count": 31,
+        "usage_pct": 63.3,
+        "avg_effectiveness": 5.0
+      },
+      {
+        "label": "Walking",
+        "category": "exercise",
+        "usage_count": 36,
+        "usage_pct": 73.5,
+        "avg_effectiveness": 5.0
+      },
+      {
+        "label": "Magnesium",
+        "category": "supplement",
+        "usage_count": 36,
+        "usage_pct": 73.5,
+        "avg_effectiveness": 4.8
+      },
+      {
+        "label": "Fennel tea",
+        "category": "tea",
+        "usage_count": 11,
+        "usage_pct": 22.4,
+        "avg_effectiveness": 4.5
+      },
+      {
+        "label": "Zinc",
+        "category": "supplement",
+        "usage_count": 13,
+        "usage_pct": 26.5,
+        "avg_effectiveness": 4.5
+      },
+      {
+        "label": "Omega-3",
+        "category": "supplement",
+        "usage_count": 31,
+        "usage_pct": 63.3,
+        "avg_effectiveness": 4.5
+      },
+      {
+        "label": "Gentle stretching",
+        "category": "exercise",
+        "usage_count": 33,
+        "usage_pct": 67.3,
+        "avg_effectiveness": 4.5
+      },
+      {
+        "label": "Yoga / Pilates",
+        "category": "exercise",
+        "usage_count": 17,
+        "usage_pct": 34.7,
+        "avg_effectiveness": 4.1
+      },
+      {
+        "label": "Ginger tea",
+        "category": "tea",
+        "usage_count": 20,
+        "usage_pct": 40.8,
+        "avg_effectiveness": 3.9
+      },
+      {
+        "label": "Chamomile tea",
+        "category": "tea",
+        "usage_count": 30,
+        "usage_pct": 61.2,
+        "avg_effectiveness": 3.8
+      },
+      {
+        "label": "Myo-inositol",
+        "category": "supplement",
+        "usage_count": 3,
+        "usage_pct": 6.1,
+        "avg_effectiveness": 3.7
+      },
+      {
+        "label": "Turmeric tea",
+        "category": "tea",
+        "usage_count": 15,
+        "usage_pct": 30.6,
+        "avg_effectiveness": 3.6
+      },
+      {
+        "label": "Cinnamon tea",
+        "category": "tea",
+        "usage_count": 8,
+        "usage_pct": 16.3,
+        "avg_effectiveness": 3.5
+      },
+      {
+        "label": "Spearmint tea",
+        "category": "tea",
+        "usage_count": 14,
+        "usage_pct": 28.6,
+        "avg_effectiveness": 3.4
+      },
+      {
+        "label": "Peppermint tea",
+        "category": "tea",
+        "usage_count": 23,
+        "usage_pct": 46.9,
+        "avg_effectiveness": 3.3
+      },
+      {
+        "label": "Raspberry leaf tea",
+        "category": "tea",
+        "usage_count": 6,
+        "usage_pct": 12.2,
+        "avg_effectiveness": 2.7
+      }
+    ],
+    "pcos": [
+      {
+        "label": "Heat therapy",
+        "category": "heat",
+        "usage_count": 15,
+        "usage_pct": 53.6,
+        "avg_effectiveness": 6.1
+      },
+      {
+        "label": "Reduced sugar",
+        "category": "diet",
+        "usage_count": 12,
+        "usage_pct": 42.9,
+        "avg_effectiveness": 5.6
+      },
+      {
+        "label": "Reduced processed food",
+        "category": "diet",
+        "usage_count": 12,
+        "usage_pct": 42.9,
+        "avg_effectiveness": 5.4
+      },
+      {
+        "label": "Omega-3",
+        "category": "supplement",
+        "usage_count": 8,
+        "usage_pct": 28.6,
+        "avg_effectiveness": 4.8
+      },
+      {
+        "label": "Magnesium",
+        "category": "supplement",
+        "usage_count": 14,
+        "usage_pct": 50.0,
+        "avg_effectiveness": 4.6
+      },
+      {
+        "label": "Chamomile tea",
+        "category": "tea",
+        "usage_count": 15,
+        "usage_pct": 53.6,
+        "avg_effectiveness": 4.5
+      },
+      {
+        "label": "Turmeric tea",
+        "category": "tea",
+        "usage_count": 3,
+        "usage_pct": 10.7,
+        "avg_effectiveness": 4.3
+      },
+      {
+        "label": "Walking",
+        "category": "exercise",
+        "usage_count": 14,
+        "usage_pct": 50.0,
+        "avg_effectiveness": 4.2
+      },
+      {
+        "label": "Myo-inositol",
+        "category": "supplement",
+        "usage_count": 7,
+        "usage_pct": 25.0,
+        "avg_effectiveness": 4.0
+      },
+      {
+        "label": "Cinnamon tea",
+        "category": "tea",
+        "usage_count": 7,
+        "usage_pct": 25.0,
+        "avg_effectiveness": 3.9
+      },
+      {
+        "label": "Gentle stretching",
+        "category": "exercise",
+        "usage_count": 14,
+        "usage_pct": 50.0,
+        "avg_effectiveness": 3.9
+      },
+      {
+        "label": "Yoga / Pilates",
+        "category": "exercise",
+        "usage_count": 5,
+        "usage_pct": 17.9,
+        "avg_effectiveness": 3.8
+      },
+      {
+        "label": "Zinc",
+        "category": "supplement",
+        "usage_count": 6,
+        "usage_pct": 21.4,
+        "avg_effectiveness": 3.7
+      },
+      {
+        "label": "Ginger tea",
+        "category": "tea",
+        "usage_count": 8,
+        "usage_pct": 28.6,
+        "avg_effectiveness": 3.6
+      },
+      {
+        "label": "Vitamin D",
+        "category": "supplement",
+        "usage_count": 16,
+        "usage_pct": 57.1,
+        "avg_effectiveness": 3.6
+      },
+      {
+        "label": "Peppermint tea",
+        "category": "tea",
+        "usage_count": 13,
+        "usage_pct": 46.4,
+        "avg_effectiveness": 3.1
+      },
+      {
+        "label": "Anti-inflammatory diet",
+        "category": "diet",
+        "usage_count": 6,
+        "usage_pct": 21.4,
+        "avg_effectiveness": 3.0
+      },
+      {
+        "label": "Spearmint tea",
+        "category": "tea",
+        "usage_count": 6,
+        "usage_pct": 21.4,
+        "avg_effectiveness": 2.5
+      },
+      {
+        "label": "Fennel tea",
+        "category": "tea",
+        "usage_count": 4,
+        "usage_pct": 14.3,
+        "avg_effectiveness": 2.0
+      },
+      {
+        "label": "Raspberry leaf tea",
+        "category": "tea",
+        "usage_count": 5,
+        "usage_pct": 17.9,
+        "avg_effectiveness": 1.6
+      }
+    ],
+    "both": [
+      {
+        "label": "Heat therapy",
+        "category": "heat",
+        "usage_count": 11,
+        "usage_pct": 91.7,
+        "avg_effectiveness": 5.5
+      },
+      {
+        "label": "Chamomile tea",
+        "category": "tea",
+        "usage_count": 7,
+        "usage_pct": 58.3,
+        "avg_effectiveness": 4.3
+      },
+      {
+        "label": "Omega-3",
+        "category": "supplement",
+        "usage_count": 6,
+        "usage_pct": 50.0,
+        "avg_effectiveness": 4.3
+      },
+      {
+        "label": "Reduced processed food",
+        "category": "diet",
+        "usage_count": 6,
+        "usage_pct": 50.0,
+        "avg_effectiveness": 4.3
+      },
+      {
+        "label": "Reduced sugar",
+        "category": "diet",
+        "usage_count": 8,
+        "usage_pct": 66.7,
+        "avg_effectiveness": 4.2
+      },
+      {
+        "label": "Magnesium",
+        "category": "supplement",
+        "usage_count": 9,
+        "usage_pct": 75.0,
+        "avg_effectiveness": 4.1
+      },
+      {
+        "label": "Peppermint tea",
+        "category": "tea",
+        "usage_count": 4,
+        "usage_pct": 33.3,
+        "avg_effectiveness": 4.0
+      },
+      {
+        "label": "Yoga / Pilates",
+        "category": "exercise",
+        "usage_count": 4,
+        "usage_pct": 33.3,
+        "avg_effectiveness": 4.0
+      },
+      {
+        "label": "Walking",
+        "category": "exercise",
+        "usage_count": 11,
+        "usage_pct": 91.7,
+        "avg_effectiveness": 3.9
+      },
+      {
+        "label": "Anti-inflammatory diet",
+        "category": "diet",
+        "usage_count": 5,
+        "usage_pct": 41.7,
+        "avg_effectiveness": 3.8
+      },
+      {
+        "label": "Vitamin D",
+        "category": "supplement",
+        "usage_count": 7,
+        "usage_pct": 58.3,
+        "avg_effectiveness": 3.7
+      },
+      {
+        "label": "Gentle stretching",
+        "category": "exercise",
+        "usage_count": 8,
+        "usage_pct": 66.7,
+        "avg_effectiveness": 3.5
+      },
+      {
+        "label": "Spearmint tea",
+        "category": "tea",
+        "usage_count": 4,
+        "usage_pct": 33.3,
+        "avg_effectiveness": 3.0
+      },
+      {
+        "label": "Raspberry leaf tea",
+        "category": "tea",
+        "usage_count": 3,
+        "usage_pct": 25.0,
+        "avg_effectiveness": 3.0
+      },
+      {
+        "label": "Zinc",
+        "category": "supplement",
+        "usage_count": 6,
+        "usage_pct": 50.0,
+        "avg_effectiveness": 3.0
+      },
+      {
+        "label": "Turmeric tea",
+        "category": "tea",
+        "usage_count": 5,
+        "usage_pct": 41.7,
+        "avg_effectiveness": 2.8
+      },
+      {
+        "label": "Ginger tea",
+        "category": "tea",
+        "usage_count": 2,
+        "usage_pct": 16.7,
+        "avg_effectiveness": 2.5
+      },
+      {
+        "label": "Fennel tea",
+        "category": "tea",
+        "usage_count": 4,
+        "usage_pct": 33.3,
+        "avg_effectiveness": 2.5
+      },
+      {
+        "label": "Cinnamon tea",
+        "category": "tea",
+        "usage_count": 2,
+        "usage_pct": 16.7,
+        "avg_effectiveness": 1.5
+      },
+      {
+        "label": "Myo-inositol",
+        "category": "supplement",
+        "usage_count": 2,
+        "usage_pct": 16.7,
+        "avg_effectiveness": 1.0
+      }
+    ]
+  }
+}
