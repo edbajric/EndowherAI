@@ -6,6 +6,16 @@ import { createClient } from '@/lib/supabase-browser';
 import { PageShell } from '@/components/layout/PageShell';
 import { Card } from '@/components/ui/Card';
 import { useActiveRemedies } from '@/lib/active-remedies';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  ReferenceLine,
+} from 'recharts';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -138,37 +148,162 @@ const TREND_META = {
 
 // ─── Detail Panel ─────────────────────────────────────────────────────────────
 
-function TimelineDots({ points, unit }: { points: TimelinePoint[]; unit: string }) {
-  if (points.length === 0) {
-    return <p className="text-xs text-inkMuted">No logs in the last 60 days.</p>;
+function effColor(eff: number): string {
+  if (eff >= 8) return '#22c55e';
+  if (eff >= 6) return '#86efac';
+  if (eff >= 4) return '#fbbf24';
+  if (eff >= 2) return '#fb923c';
+  return '#f87171';
+}
+
+function MonthlyCalendar({ logs }: { logs: RemedyLog[] }) {
+  const logMap = new Map<string, { effectivenessSum: number; count: number }>();
+  logs.forEach(log => {
+    const existing = logMap.get(log.log_date);
+    if (existing) {
+      existing.effectivenessSum += log.effectiveness;
+      existing.count++;
+    } else {
+      logMap.set(log.log_date, { effectivenessSum: log.effectiveness, count: 1 });
+    }
+  });
+
+  const today = new Date();
+  const allDates = [...logMap.keys()].sort();
+  const firstDate = allDates.length > 0 ? new Date(allDates[0]) : today;
+
+  const months: Date[] = [];
+  let cur = new Date(firstDate.getFullYear(), firstDate.getMonth(), 1);
+  const end = new Date(today.getFullYear(), today.getMonth(), 1);
+  while (cur <= end && months.length < 13) {
+    months.push(new Date(cur));
+    cur = new Date(cur.getFullYear(), cur.getMonth() + 1, 1);
   }
 
-  const dotColor = (eff: number) =>
-    eff >= 7 ? 'bg-green-400' : eff >= 4 ? 'bg-amber-400' : 'bg-red-400';
+  if (months.length === 0) {
+    return <p className="text-xs text-inkMuted">No logs yet.</p>;
+  }
+
+  const totalLogs = logs.length;
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold text-inkStrong">Monthly usage</p>
+        <p className="text-xs text-inkMuted">
+          {totalLogs} log{totalLogs !== 1 ? 's' : ''} total
+        </p>
+      </div>
+
+      <div className="overflow-x-auto -mx-1 px-1">
+        <div className="space-y-1.5 min-w-0">
+          {months.map(month => {
+            const yr = month.getFullYear();
+            const mo = month.getMonth();
+            const daysInMonth = new Date(yr, mo + 1, 0).getDate();
+            const label = month.toLocaleString('default', { month: 'short', year: '2-digit' });
+
+            return (
+              <div key={`${yr}-${mo}`} className="flex items-center gap-1.5">
+                <span className="text-[10px] text-inkMuted w-8 shrink-0 text-right">{label}</span>
+                <div className="flex gap-0.5 flex-nowrap">
+                  {Array.from({ length: daysInMonth }).map((_, i) => {
+                    const day = i + 1;
+                    const dateStr = `${yr}-${String(mo + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                    const entry = logMap.get(dateStr);
+                    const isFuture = new Date(dateStr) > today;
+                    const avgEff = entry ? entry.effectivenessSum / entry.count : 0;
+
+                    return (
+                      <div
+                        key={dateStr}
+                        title={
+                          entry
+                            ? `${dateStr} · ${avgEff.toFixed(1)}/10 · used ${entry.count}×`
+                            : dateStr
+                        }
+                        className="h-4 w-4 rounded-[3px] shrink-0 cursor-default"
+                        style={{
+                          backgroundColor: isFuture
+                            ? 'transparent'
+                            : entry
+                              ? effColor(avgEff)
+                              : '#e5e7eb',
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Legend */}
+      <div className="flex flex-wrap items-center gap-2.5 text-[10px] text-inkMuted">
+        <span className="flex items-center gap-1">
+          <span className="h-3 w-3 rounded-[2px] bg-neutral-200 inline-block" />
+          Not used
+        </span>
+        <span className="flex items-center gap-1">
+          <span className="h-3 w-3 rounded-[2px] inline-block" style={{ backgroundColor: '#f87171' }} />
+          1–3
+        </span>
+        <span className="flex items-center gap-1">
+          <span className="h-3 w-3 rounded-[2px] inline-block" style={{ backgroundColor: '#fb923c' }} />
+          4–5
+        </span>
+        <span className="flex items-center gap-1">
+          <span className="h-3 w-3 rounded-[2px] inline-block" style={{ backgroundColor: '#fbbf24' }} />
+          6–7
+        </span>
+        <span className="flex items-center gap-1">
+          <span className="h-3 w-3 rounded-[2px] inline-block" style={{ backgroundColor: '#22c55e' }} />
+          8–10
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function SingleRemedyChart({ logs }: { logs: RemedyLog[] }) {
+  if (logs.length < 2) return null;
+
+  const sorted = [...logs].sort((a, b) => a.log_date.localeCompare(b.log_date));
+  const data = sorted.map(l => ({ date: l.log_date, effectiveness: l.effectiveness }));
+  const avg = Math.round((logs.reduce((s, l) => s + l.effectiveness, 0) / logs.length) * 10) / 10;
+
+  const fmtDate = (d: string) =>
+    new Date(d + 'T00:00:00').toLocaleDateString('en', { month: 'short', day: 'numeric' });
 
   return (
     <div className="space-y-2">
-      <div className="flex flex-wrap gap-1.5">
-        {points.map(p => (
-          <div
-            key={p.date}
-            title={`${p.date} · ${p.effectiveness}/10${p.quantity ? ` · ${p.quantity} ${unit}` : ''}`}
-            className={`h-4 w-4 rounded-full ${dotColor(p.effectiveness)} cursor-default`}
+      <p className="text-xs font-semibold text-inkStrong">Effectiveness trend</p>
+      <ResponsiveContainer width="100%" height={160}>
+        <LineChart data={data} margin={{ top: 4, right: 4, bottom: 0, left: -22 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+          <XAxis dataKey="date" tickFormatter={fmtDate} tick={{ fontSize: 10 }} minTickGap={40} />
+          <YAxis domain={[0, 10]} ticks={[0, 5, 10]} tick={{ fontSize: 10 }} />
+          <Tooltip
+            formatter={(v: any) => [`${v}/10`, 'Effectiveness']}
+            labelFormatter={(d: any) => fmtDate(d)}
+            contentStyle={{ fontSize: 11, borderRadius: 10 }}
           />
-        ))}
-      </div>
-      <div className="flex items-center gap-3 text-[10px] text-inkMuted">
-        <span className="flex items-center gap-1">
-          <span className="h-2.5 w-2.5 rounded-full bg-green-400 inline-block" />≥ 7
-        </span>
-        <span className="flex items-center gap-1">
-          <span className="h-2.5 w-2.5 rounded-full bg-amber-400 inline-block" />
-          4–6
-        </span>
-        <span className="flex items-center gap-1">
-          <span className="h-2.5 w-2.5 rounded-full bg-red-400 inline-block" />≤ 3
-        </span>
-      </div>
+          <ReferenceLine y={avg} stroke="#a78bfa" strokeDasharray="4 4" strokeWidth={1.5} />
+          <Line
+            type="monotone"
+            dataKey="effectiveness"
+            stroke="#7c3aed"
+            strokeWidth={2}
+            dot={{ r: 4, fill: '#7c3aed' }}
+            activeDot={{ r: 5 }}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+      <p className="text-[10px] text-inkMuted">
+        Dashed line = your average ({avg}/10) · {logs.length} log{logs.length !== 1 ? 's' : ''}
+      </p>
     </div>
   );
 }
@@ -177,11 +312,13 @@ function DetailPanel({
   data,
   emoji,
   unit,
+  remedyLogs,
   onClose,
 }: {
   data: InsightData;
   emoji: string;
   unit: string;
+  remedyLogs: RemedyLog[];
   onClose: () => void;
 }) {
   const trend = TREND_META[data.effectiveness_trend];
@@ -221,6 +358,9 @@ function DetailPanel({
 
       {/* ── Trend summary ── */}
       <p className="text-sm text-inkMuted leading-relaxed">{data.trend_summary}</p>
+
+      {/* ── Trend line chart ── */}
+      <SingleRemedyChart logs={remedyLogs} />
 
       {/* ── 3-col stat strip ── */}
       <div className="grid grid-cols-3 gap-2">
@@ -312,14 +452,8 @@ function DetailPanel({
         </div>
       )}
 
-      {/* ── Timeline dots ── */}
-      <div>
-        <p className="text-xs font-semibold text-inkStrong mb-2">
-          Usage timeline{' '}
-          <span className="font-normal text-inkMuted">(last 60 days, hover for date)</span>
-        </p>
-        <TimelineDots points={data.timeline} unit={unit} />
-      </div>
+      {/* ── Monthly calendar heatmap ── */}
+      <MonthlyCalendar logs={remedyLogs} />
     </div>
   );
 }
@@ -630,6 +764,11 @@ export default function RemedyStatsPage() {
                             data={detailData}
                             emoji={stat.emoji}
                             unit={stat.unit}
+                            remedyLogs={allLogs.filter(
+                              l =>
+                                l.remedy_name === stat.remedy_name &&
+                                l.remedy_category === stat.remedy_category
+                            )}
                             onClose={() => {
                               setDetailKey(null);
                               setDetailData(null);

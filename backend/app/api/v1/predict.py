@@ -140,16 +140,6 @@ class InsightRequest(BaseModel):
         description="Menstrual cycle pattern (0=Regular, 1=Mostly regular, 2=Somewhat irregular, 3=Irregular)",
     )
 
-    # ── Demographics / biometrics ────────────────────────────────────────────
-    age: int = Field(
-        ..., ge=12, le=65,
-        description="Age in years",
-    )
-    bmi: float = Field(
-        ..., ge=15.0, le=60.0,
-        description="Body-mass index (kg / m²).  Compute: weight_kg / (height_m ** 2)",
-    )
-
     # ── Treatment behaviours (optional) ──────────────────────────────────────
     anti_inflammatory_diet: float = Field(
         0.0, ge=0.0, le=10.0,
@@ -166,11 +156,6 @@ class InsightRequest(BaseModel):
         description="Whether to run LIME and return top-3 contributing factors. "
                     "Set False to halve response latency.",
     )
-
-    @field_validator("bmi")
-    @classmethod
-    def _round_bmi(cls, v: float) -> float:
-        return round(v, 2)
 
 
 class ExplanationFactor(BaseModel):
