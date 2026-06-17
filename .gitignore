@@ -49,3 +49,8 @@ supabase/
 
 
 database.md
+
+machine-learning/outputs/*.png
+machine-learning/outputs/*.jpg
+machine-learning/outputs/*.jpeg
+machine-learning/outputs/*.svg

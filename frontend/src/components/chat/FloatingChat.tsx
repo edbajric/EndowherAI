@@ -138,9 +138,10 @@ export function FloatingChat({ limeContext }: FloatingChatProps) {
           role="dialog"
           aria-label="EndoWherAI research assistant"
           className={[
-            "fixed bottom-24 right-4 sm:right-6 z-50",
+            "fixed bottom-20 right-4 sm:bottom-24 sm:right-6 z-50",
             "flex flex-col",
-            "w-[calc(100vw-2rem)] max-w-sm h-[520px]",
+            "w-[calc(100vw-2rem)] max-w-sm",
+            "h-[min(520px,80dvh)]",
             "rounded-3xl bg-bg shadow-2xl ring-1 ring-ink/10 overflow-hidden",
           ].join(" ")}
         >

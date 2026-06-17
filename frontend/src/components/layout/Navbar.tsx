@@ -16,6 +16,7 @@ const publicLinks = [
 const authedLinks = [
   { href: "/home", label: "Home" },
   { href: "/diary", label: "Diary" },
+  { href: "/cycle", label: "Cycle" },
   { href: "/weekly", label: "Weekly" },
   { href: "/insights", label: "Insights" },
   { href: "/remedies", label: "Remedies" },
