@@ -157,7 +157,7 @@ export default function HomePage() {
   return (
     <PageShell title="Welcome back" subtitle="Your health snapshot and history.">
       {/* ===== STATS ROW ===== */}
-      <div className="mb-8 grid gap-4 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
         <div className="rounded-3xl bg-gradient-to-br from-primary to-accent px-5 py-4 text-center text-white shadow-sm">
           <p className="text-3xl font-bold">{stats.totalLogs}</p>
           <p className="mt-1 text-xs opacity-80">Entries</p>
@@ -220,7 +220,7 @@ export default function HomePage() {
                 <p className="mt-1 text-xs text-inkMuted">Fatigue</p>
               </div>
               <div className="rounded-2xl bg-white/80 p-4 text-center shadow-sm">
-                <p className="text-xl font-bold text-success capitalize">{todayLog.mood || '—'}</p>
+                <p className="text-sm sm:text-xl font-bold text-success capitalize truncate">{todayLog.mood || '—'}</p>
                 <p className="mt-1 text-xs text-inkMuted">Mood</p>
               </div>
             </div>
@@ -288,34 +288,53 @@ export default function HomePage() {
               </Button>
             </div>
           ) : (
-            <div className="mt-2 overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-ink/10 text-left text-xs text-inkMuted">
-                    <th className="pb-2 pr-3">Date</th>
-                    <th className="pb-2 pr-3">Pain</th>
-                    <th className="pb-2 pr-3">Fatigue</th>
-                    <th className="pb-2 pr-3">Mood</th>
-                    <th className="pb-2 pr-3">Bleeding</th>
-                    <th className="pb-2">Notes</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentLogs.map(log => (
-                    <tr key={log.id} className="border-b border-ink/5 text-ink">
-                      <td className="py-2 pr-3 text-xs">{log.log_date}</td>
-                      <td className="py-2 pr-3 text-xs font-medium">{log.pain_level}/10</td>
-                      <td className="py-2 pr-3 text-xs">{log.fatigue_level}/10</td>
-                      <td className="py-2 pr-3 text-xs capitalize">{log.mood || '—'}</td>
-                      <td className="py-2 pr-3 text-xs capitalize">
-                        {log.bleeding_intensity || '—'}
-                      </td>
-                      <td className="py-2 text-xs max-w-[150px] truncate">{log.notes || '—'}</td>
+            <>
+              {/* Mobile card list */}
+              <div className="mt-2 space-y-2 sm:hidden">
+                {recentLogs.map(log => (
+                  <div key={log.id} className="rounded-xl bg-bgMuted/50 px-3 py-2.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs font-medium text-inkStrong">{log.log_date}</span>
+                      <span className="text-xs text-inkMuted">Pain {log.pain_level}/10</span>
+                    </div>
+                    <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-inkMuted">
+                      <span>Fatigue {log.fatigue_level}/10</span>
+                      {log.mood && <span className="capitalize">{log.mood}</span>}
+                      {log.bleeding_intensity && log.bleeding_intensity !== 'none' && (
+                        <span className="capitalize">{log.bleeding_intensity}</span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {/* Desktop table */}
+              <div className="mt-2 hidden overflow-x-auto sm:block">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-ink/10 text-left text-xs text-inkMuted">
+                      <th className="pb-2 pr-3">Date</th>
+                      <th className="pb-2 pr-3">Pain</th>
+                      <th className="pb-2 pr-3">Fatigue</th>
+                      <th className="pb-2 pr-3">Mood</th>
+                      <th className="pb-2 pr-3">Bleeding</th>
+                      <th className="pb-2">Notes</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {recentLogs.map(log => (
+                      <tr key={log.id} className="border-b border-ink/5 text-ink">
+                        <td className="py-2 pr-3 text-xs">{log.log_date}</td>
+                        <td className="py-2 pr-3 text-xs font-medium">{log.pain_level}/10</td>
+                        <td className="py-2 pr-3 text-xs">{log.fatigue_level}/10</td>
+                        <td className="py-2 pr-3 text-xs capitalize">{log.mood || '—'}</td>
+                        <td className="py-2 pr-3 text-xs capitalize">{log.bleeding_intensity || '—'}</td>
+                        <td className="py-2 text-xs max-w-[150px] truncate">{log.notes || '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </Card>
 

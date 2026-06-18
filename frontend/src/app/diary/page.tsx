@@ -10,6 +10,7 @@ import { Likert } from "@/components/forms/Likert";
 import { SensitiveSection } from "@/components/forms/SensitiveSection";
 import { Slider010 } from "@/components/forms/Slider010";
 import { useActiveRemedies, getQuickAmounts, type ActiveRemedy } from "@/lib/active-remedies";
+import { useCycles, findActiveCycle, getDayStatus, toDateKey } from "@/lib/cycles";
 
 // ─── Per-remedy quick-log state ───────────────────────────────────────────────
 
@@ -38,7 +39,6 @@ export default function DiaryPage() {
   const [error,             setError]             = useState<string | null>(null);
   const [pelvicPain,        setPelvicPain]        = useState(5);
   const [fatigue,           setFatigue]           = useState(4);
-  const [cycleDay,          setCycleDay]          = useState<number | "">("");
   const [bleedingIntensity, setBleedingIntensity] = useState("none");
   const [stress,            setStress]            = useState<number | null>(null);
   const [mood,              setMood]              = useState("neutral");
@@ -51,6 +51,13 @@ export default function DiaryPage() {
 
   // Active remedies (Supabase-backed)
   const { remedies, loading: arLoading, remove: removeRemedy } = useActiveRemedies(pseudonymId);
+
+  // Cycle tracking (Supabase-backed) — cycle day is derived, not entered manually
+  const { cycles, settings, logPeriodStart } = useCycles(pseudonymId);
+  const todayKey = toDateKey(new Date());
+  const activeCycle = findActiveCycle(todayKey, cycles, settings);
+  const autoCycleDay = getDayStatus(todayKey, cycles, settings).cycleDay;
+  const [startingPeriod, setStartingPeriod] = useState(false);
 
   // Per-remedy entry state (quantity + logged flag)
   const [entries, setEntries] = useState<Record<string, RemedyEntry>>({});
@@ -104,7 +111,7 @@ export default function DiaryPage() {
       pseudonym_id:       pseudonymId,
       log_date:           new Date().toISOString().split("T")[0],
       pain_level:         pelvicPain,
-      cycle_day:          cycleDay === "" ? null : cycleDay,
+      cycle_day:          autoCycleDay,
       bleeding_intensity: bleedingIntensity,
       mood,
       fatigue_level:      fatigue,
@@ -118,7 +125,6 @@ export default function DiaryPage() {
     setNotes("");
     setPelvicPain(5);
     setFatigue(4);
-    setCycleDay("");
     setBleedingIntensity("none");
     setStress(null);
     setMood("neutral");
@@ -261,7 +267,7 @@ export default function DiaryPage() {
                                 onClick={() => logRemedy(remedy, amt)}
                                 className={[
                                   "rounded-full px-3 py-1.5 text-xs font-medium transition-all",
-                                  entry.loading
+                                  entry.logging
                                     ? "opacity-50 cursor-wait"
                                     : "bg-bgSoft ring-1 ring-ink/10 text-inkStrong hover:bg-primary hover:text-white hover:ring-primary",
                                 ].join(" ")}
@@ -312,7 +318,7 @@ export default function DiaryPage() {
       {/* ── Main diary form + recent logs ── */}
       <div className="grid gap-5 lg:grid-cols-2">
 
-        <Card title="Recent logs" description="Your last 7 entries.">
+        <Card title="Recent logs" description="Your last 7 entries." className="order-2 lg:order-1">
           {logs.length === 0 ? (
             <p className="text-sm text-inkMuted">No logs yet. Start tracking today!</p>
           ) : (
@@ -337,28 +343,26 @@ export default function DiaryPage() {
           )}
         </Card>
 
-        <Card title="Today's entry" description="Log your symptoms.">
+        <Card title="Today's entry" description="Log your symptoms." className="order-1 lg:order-2">
           <div className="mt-4 grid gap-4">
             <Slider010 label="Pelvic pain" description="0 = none · 10 = worst" value={pelvicPain} onChange={setPelvicPain} />
             <Slider010 label="Fatigue" value={fatigue} onChange={setFatigue} />
 
             <div className="rounded-3xl bg-bg ring-1 ring-ink/10 px-5 py-4">
-              <label className="text-sm font-medium text-inkStrong">
-                Cycle Day <span className="ml-2 text-xs text-inkMuted">Optional</span>
-              </label>
-              <input
-                type="number" min="1" max="60"
-                value={cycleDay}
-                onChange={(e) => setCycleDay(e.target.value === "" ? "" : Number(e.target.value))}
-                className="mt-3 h-11 w-full rounded-2xl bg-bg px-4 ring-1 ring-ink/10 focus:outline-none focus:ring-2 focus:ring-accent2"
-                placeholder="e.g., 14"
-              />
+              <label className="text-sm font-medium text-inkStrong">Cycle Day</label>
+              <p className="mt-3 text-sm text-inkMuted">
+                {autoCycleDay != null ? (
+                  <>Day <span className="font-semibold text-inkStrong">{autoCycleDay}</span> of your cycle</>
+                ) : (
+                  "No active cycle — log a period start on the Cycle page or below to begin tracking."
+                )}
+              </p>
             </div>
 
             <div className="rounded-3xl bg-bg ring-1 ring-ink/10 px-5 py-4">
               <label className="text-sm font-medium text-inkStrong">Bleeding</label>
               <div className="mt-3 flex flex-wrap gap-2">
-                {["none", "light", "medium", "heavy"].map((v) => (
+                {["none", "spotting", "light", "medium", "heavy"].map((v) => (
                   <button key={v} type="button" onClick={() => setBleedingIntensity(v)}
                     className={[
                       "rounded-full px-4 py-2 text-sm capitalize transition-colors",
@@ -371,6 +375,28 @@ export default function DiaryPage() {
                   </button>
                 ))}
               </div>
+
+              {bleedingIntensity !== "none" && !activeCycle && (
+                <div className="mt-3 rounded-2xl bg-pink-50 px-4 py-3 ring-1 ring-pink-200">
+                  <p className="text-sm text-inkStrong">No period currently tracked for today.</p>
+                  <p className="mt-0.5 text-xs text-inkMuted">
+                    Is this the start of a new period, or bleeding outside your period (breakthrough)?
+                  </p>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    disabled={startingPeriod || !pseudonymId}
+                    onClick={async () => {
+                      setStartingPeriod(true);
+                      await logPeriodStart(todayKey, undefined);
+                      setStartingPeriod(false);
+                    }}
+                    className="mt-2"
+                  >
+                    {startingPeriod ? "Starting…" : "Yes, my period started today"}
+                  </Button>
+                </div>
+              )}
             </div>
 
             <div className="rounded-3xl bg-bg ring-1 ring-ink/10 px-5 py-4">

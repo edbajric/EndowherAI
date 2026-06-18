@@ -355,7 +355,7 @@ export default function WeeklyPage() {
             </div>
           )}
 
-          <div className="flex gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row">
             <Button href="/home">Back to dashboard</Button>
             <Button
               variant="secondary"

@@ -51,7 +51,7 @@ export function Likert({
       )}
 
       <div
-        className="mt-4 grid gap-2 sm:grid-cols-5"
+        className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-5"
         role="radiogroup"
         aria-labelledby={id}
       >
